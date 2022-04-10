@@ -2,9 +2,8 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-
-    public float speed = 20f;
-    public int damage = 40;
+    public float speed = 15f;
+    public int damage = 30;
     public Rigidbody2D rb;
     public GameObject impactEffect;
 
@@ -15,17 +14,23 @@ public class Bullet : MonoBehaviour
         Invoke("SelfDestroy", 2.0f);
     }
 
+
     void OnTriggerEnter2D(Collider2D hitInfo)
     {
-        BossHealth enemy = hitInfo.GetComponent<BossHealth>();
-        if (enemy != null)
+        if (hitInfo.GetComponent<BossHealth>() != null)
         {
-            enemy.TakeDamage(damage);
+            hitInfo.GetComponent<BossHealth>().TakeDamage(damage);
+        }
+        else if (hitInfo.GetComponent<Spike>() != null)
+        {
+            hitInfo.GetComponent<Spike>().TakeDamage(damage);
         }
 
-        Instantiate(impactEffect, transform.position, transform.rotation);
-
-        Destroy(gameObject);
+        if (!hitInfo.CompareTag("Player"))
+        {
+            Instantiate(impactEffect, transform.position, transform.rotation);
+            Destroy(gameObject);
+        }
     }
 
     void SelfDestroy()

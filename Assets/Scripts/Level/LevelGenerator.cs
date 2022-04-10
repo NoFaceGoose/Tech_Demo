@@ -21,8 +21,13 @@ public class LevelGenerator : MonoBehaviour
     public MapSettings mapSetting;
 
     public GameObject spike;
-    public GameObject[] spikes;
+    private GameObject[] spikes;
+    public GameObject potion;
+    private GameObject[] potions;
+    public GameObject playerEvent;
+    private GameObject[] playerEvents;
     public GameObject boss;
+    public GameObject player;
 
     private void Update()
     {
@@ -75,8 +80,39 @@ public class LevelGenerator : MonoBehaviour
                 }
             }
         }
-
         spikes = null;
+
+        if (potions != null)
+        {
+            for (int i = 0; i < potions.Length; i++)
+            {
+                if (Application.isPlaying)
+                {
+                    Destroy(potions[i]);
+                }
+                else
+                {
+                    DestroyImmediate(potions[i]);
+                }
+            }
+        }
+        potions = null;
+
+        if (playerEvents != null)
+        {
+            for (int i = 0; i < playerEvents.Length; i++)
+            {
+                if (Application.isPlaying)
+                {
+                    Destroy(playerEvents[i]);
+                }
+                else
+                {
+                    DestroyImmediate(playerEvents[i]);
+                }
+            }
+        }
+        playerEvents = null;
     }
 
     private int[,] GenerateArray(int width, int height, bool empty)
@@ -127,10 +163,6 @@ public class LevelGenerator : MonoBehaviour
                 }
             }
         }
-
-        // Set the block as tile where the player stands at the beginning
-        map[0, map.GetUpperBound(1) - 1] = 1;
-
         return map;
     }
 
@@ -142,16 +174,16 @@ public class LevelGenerator : MonoBehaviour
         {
             for (int y = 0; y < map.GetUpperBound(1); y++) // Loop through the height of the map
             {
-                if (map[x, y] == 1) // 1 = tile, 0 = no tile, 2 = spike
+                if (map[x, y] == 1) // 0 = empty, 1 = tile, 2 = spike, 3 = potion, 4 = player event
                 {
                     tilemap.SetTile(new Vector3Int(x, y, 0), tile);
                 }
-                else
+                else if (map[x, y] == 0)
                 {
                     // Set some blocks which are not tiles as spikes by random in a certain range
                     if (Random.Range(0, 100) < mapSetting.dangerDegree)
                     {
-                        if (x > 0 & y > 0)
+                        if (x > 0 & y > 0 && x < map.GetUpperBound(0) - 1 && y < map.GetUpperBound(1) - 1)
                         {
                             // Spike always attach to one title with a different angle
                             // And a spike will never be set between two tiles
@@ -189,11 +221,55 @@ public class LevelGenerator : MonoBehaviour
                             }
                         }
                     }
+
+                    // Generate potions, which can only be in one empty block and on the top of one tile
+                    if (y > 0 && map[x, y - 1] == 1 && Random.Range(0, 100) < mapSetting.potionNum)
+                    {
+                        Instantiate(potion, tilemap.GetCellCenterWorld(new Vector3Int(x, y, 0)), potion.transform.rotation);
+                        map[x, y] = 3;
+                        continue;
+                    }
+
+                    // Generate player events, which can only be in one empty block and 'embraced' by two tiles or spikes
+                    if (Random.Range(0, 100) < mapSetting.playerEventNum && x > 0 && y > 0 && x < map.GetUpperBound(0) - 1 && y < map.GetUpperBound(1) - 1)
+                    {
+                        if (
+                            ((map[x, y + 1] == 1 || map[x, y + 1] == 2) && (map[x - 1, y] == 1 || map[x - 1, y] == 2 || map[x + 1, y] == 1 || map[x + 1, y] == 2))
+                            ||
+                            ((map[x, y - 1] == 1 || map[x, y - 1] == 2) && (map[x - 1, y] == 1 || map[x - 1, y] == 2 || map[x + 1, y] == 1 || map[x + 1, y] == 2))
+                            )
+                        {
+                            Instantiate(playerEvent, tilemap.GetCellCenterWorld(new Vector3Int(x, y, 0)), playerEvent.transform.rotation);
+                            map[x, y] = 4;
+                        }
+                    }
                 }
             }
         }
 
         spikes = GameObject.FindGameObjectsWithTag("Spike");
+        potions = GameObject.FindGameObjectsWithTag("Potion");
+        playerEvents = GameObject.FindGameObjectsWithTag("Player Event");
+
+        // Generate the player's initial position, which must be on a tile
+        int generationLimit = 0;
+        while (true)
+        {
+            int playerTile = Random.Range(0, map.GetUpperBound(0));
+            if (map[playerTile, map.GetUpperBound(1) - 1] == 1)
+            {
+                player.transform.position = tilemap.GetCellCenterWorld(new Vector3Int(playerTile, map.GetUpperBound(1), 0));
+                break;
+            }
+
+            // In case there is no tile in the top row
+            generationLimit++;
+            if (generationLimit > map.GetUpperBound(0))
+            {
+                player.transform.position = tilemap.GetCellCenterWorld(new Vector3Int(0, map.GetUpperBound(1), 0));
+                break;
+            }
+        }
 
         // Generate the boss fight stage width and offset by random
         int maxStageWidth = map.GetUpperBound(0) / 2 > 10 ? map.GetUpperBound(0) / 2 : 10;
@@ -215,7 +291,7 @@ public class LevelGenerator : MonoBehaviour
         // Generate the boss's position on the stage by random
         int bossTile = Random.Range(offset + 1, battleStageWidth + offset - 1);
         Vector3 tilePosition = tilemap.GetCellCenterWorld(new Vector3Int(bossTile, -1, 0));
-        boss.GetComponent<Transform>().position = new Vector3(tilePosition.x, tilePosition.y - 0.4f, tilePosition.z);
+        boss.transform.position = new Vector3(tilePosition.x, tilePosition.y - 0.4f, tilePosition.z);
     }
 }
 

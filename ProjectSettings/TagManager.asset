@@ -8,6 +8,8 @@ TagManager:
   - Ground
   - Spike
   - Trigger
+  - Potion
+  - Player Event
   layers:
   - Default
   - TransparentFX

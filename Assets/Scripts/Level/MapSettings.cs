@@ -13,6 +13,8 @@ public class MapSettings : ScriptableObject
     public bool edgesAreWalls;
     public float modifier;
     public int dangerDegree;
+    public int potionNum;
+    public int playerEventNum;
 }
 
 //Custom UI for our class
@@ -36,6 +38,8 @@ public class MapSettings_Editor : Editor
         mapLayer.edgesAreWalls = EditorGUILayout.Toggle("Edges Are Walls", mapLayer.edgesAreWalls);
         mapLayer.modifier = EditorGUILayout.Slider("Modifier", mapLayer.modifier, 0.0001f, 1.0f);
         mapLayer.dangerDegree = EditorGUILayout.IntSlider("Danger Degree", mapLayer.dangerDegree, 0, 100);
+        mapLayer.potionNum = EditorGUILayout.IntSlider("Potion Num", mapLayer.potionNum, 0, 100);
+        mapLayer.playerEventNum = EditorGUILayout.IntSlider("Player Event Num", mapLayer.playerEventNum, 0, 100);
 
         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
         AssetDatabase.SaveAssets();

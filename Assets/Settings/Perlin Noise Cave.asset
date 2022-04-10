@@ -15,5 +15,7 @@ MonoBehaviour:
   randomSeed: 1
   seed: 1
   edgesAreWalls: 0
-  modifier: 0.338
-  dangerDegree: 29
+  modifier: 0.238
+  dangerDegree: 24
+  potionNum: 11
+  playerEventNum: 11

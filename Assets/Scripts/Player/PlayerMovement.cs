@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -6,6 +7,7 @@ public class PlayerMovement : MonoBehaviour
     public Animator animator;
 
     public float runSpeed = 40f;
+    public Text runSpeedText;
 
     float horizontalMove = 0f;
     bool jump = false;
@@ -13,6 +15,7 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        runSpeedText.GetComponent<Text>().text = "Run Speed: " + runSpeed.ToString("#0.00");
 
         horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
 

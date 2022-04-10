@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class CharacterController2D : MonoBehaviour
 {
@@ -26,6 +27,7 @@ public class CharacterController2D : MonoBehaviour
 
     public GameObject boss;
     public GameObject bossHealthBar;
+    public Text jumpForceText;
 
     private void Awake()
     {
@@ -37,6 +39,8 @@ public class CharacterController2D : MonoBehaviour
 
     private void FixedUpdate()
     {
+        jumpForceText.GetComponent<Text>().text = "Jump Force: " + m_JumpForce.ToString("#0.00");
+
         bool wasGrounded = m_Grounded;
         m_Grounded = false;
 
@@ -53,6 +57,7 @@ public class CharacterController2D : MonoBehaviour
             }
         }
 
+        // Tigger boss fight when landing on the stage
         if (boss != null && bossHealthBar != null && transform.position.y < -1)
         {
             boss.SetActive(true);
@@ -102,5 +107,14 @@ public class CharacterController2D : MonoBehaviour
         transform.localScale = flipped;
 
         transform.Rotate(0f, 180f, 0f);
+    }
+
+    public void changeJumpForce(float value)
+    {
+        m_JumpForce += value;
+        if (m_JumpForce <= 0)
+        {
+            m_JumpForce = 0;
+        }
     }
 }
