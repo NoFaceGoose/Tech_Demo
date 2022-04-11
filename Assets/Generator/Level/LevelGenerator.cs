@@ -272,6 +272,7 @@ public class LevelGenerator : MonoBehaviour
         }
 
         // Generate the boss fight stage width and offset by random
+        // The minimum width is 10
         int maxStageWidth = map.GetUpperBound(0) / 2 > 10 ? map.GetUpperBound(0) / 2 : 10;
         int battleStageWidth = Random.Range(10, maxStageWidth);
         int offset = Random.Range(0, map.GetUpperBound(0) - battleStageWidth);
