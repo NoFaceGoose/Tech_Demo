@@ -32,6 +32,10 @@ public class PlayerHealth : MonoBehaviour
     {
         health -= damage;
 
+        int value = -damage;
+
+        GetComponent<CharacterController2D>().updateReminder("HP " + (value < 0 ? value.ToString() : ("+" + value)), value >= 0);
+
         if (damage > 0)
         {
             StartCoroutine(DamageAnimation());

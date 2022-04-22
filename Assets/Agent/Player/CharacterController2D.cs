@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class CharacterController2D : MonoBehaviour
 {
     [SerializeField] private float m_JumpForce = 400f;                          // Amount of force added when the player jumps.
-    [Range(0, .3f)] [SerializeField] private float m_MovementSmoothing = .05f;  // How much to smooth out the movement
+    [Range(0, .3f)][SerializeField] private float m_MovementSmoothing = .05f;  // How much to smooth out the movement
     [SerializeField] private bool m_AirControl = false;                         // Whether or not a player can steer while jumping;
     [SerializeField] private LayerMask m_WhatIsGround;                          // A mask determining what is ground to the character
     [SerializeField] private Transform m_GroundCheck;                           // A position marking where to check if the player is grounded.
@@ -26,8 +26,10 @@ public class CharacterController2D : MonoBehaviour
     public class BoolEvent : UnityEvent<bool> { }
 
     public GameObject boss;
-    public GameObject bossHealthBar;
+    public GameObject bossBars;
     public Text jumpForceText;
+
+    public GameObject reminder;
 
     private void Awake()
     {
@@ -58,10 +60,10 @@ public class CharacterController2D : MonoBehaviour
         }
 
         // Tigger boss fight when landing on the stage
-        if (boss != null && bossHealthBar != null && transform.position.y < -1)
+        if (boss != null && bossBars != null && transform.position.y < -1)
         {
             boss.SetActive(true);
-            bossHealthBar.SetActive(true);
+            bossBars.SetActive(true);
         }
     }
 
@@ -116,5 +118,20 @@ public class CharacterController2D : MonoBehaviour
         {
             m_JumpForce = 0;
         }
+    }
+
+    // update the reminder text
+    public void updateReminder(string text, bool buff)
+    {
+        reminder.GetComponent<Text>().text = text;
+        reminder.GetComponent<Text>().color = buff ? Color.green : Color.red;
+        reminder.SetActive(true);
+        CancelInvoke("cancelReminder");
+        Invoke("cancelReminder", 1.0f);
+    }
+
+    private void cancelReminder()
+    {
+        reminder.SetActive(false);
     }
 }

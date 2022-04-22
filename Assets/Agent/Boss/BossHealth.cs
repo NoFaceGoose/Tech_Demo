@@ -14,6 +14,7 @@ public class BossHealth : MonoBehaviour
     public GameObject shield;
 
     public Text healthText;
+    public Text defenseText;
 
     public bool isInvulnerable = false;
 
@@ -25,7 +26,8 @@ public class BossHealth : MonoBehaviour
 
     private void Update()
     {
-        healthText.GetComponent<Text>().text = health + "/" + maxHealth + "               " + defense + "/" + maxDefense;
+        healthText.GetComponent<Text>().text = health + "/" + maxHealth;
+        defenseText.GetComponent<Text>().text = defense + "/" + maxDefense;
     }
 
     public void TakeDamage(int damage)

@@ -66,6 +66,11 @@ public class LevelGenerator : MonoBehaviour
     {
         tilemap.ClearAllTiles();
 
+        // retrieve and clear all prefabs
+        spikes = GameObject.FindGameObjectsWithTag("Spike");
+        potions = GameObject.FindGameObjectsWithTag("Potion");
+        playerEvents = GameObject.FindGameObjectsWithTag("Player Event");
+
         if (spikes != null)
         {
             for (int i = 0; i < spikes.Length; i++)
@@ -144,12 +149,12 @@ public class LevelGenerator : MonoBehaviour
     /// <returns>The noise cave.</returns>
     private int[,] PerlinNoiseCave(int[,] map, float modifier, bool edgesAreWalls)
     {
+        // generate Perlin Noise Cave
         int newPoint;
         for (int x = 0; x < map.GetUpperBound(0); x++)
         {
             for (int y = 0; y < map.GetUpperBound(1); y++)
             {
-
                 if (edgesAreWalls && (x == 0 || y == 0 || x == map.GetUpperBound(0) - 1 || y == map.GetUpperBound(1) - 1))
                 {
                     // Keep the edges as walls
@@ -174,7 +179,7 @@ public class LevelGenerator : MonoBehaviour
         {
             for (int y = 0; y < map.GetUpperBound(1); y++) // Loop through the height of the map
             {
-                if (map[x, y] == 1) // 0 = empty, 1 = tile, 2 = spike, 3 = potion, 4 = player event
+                if (map[x, y] == 1) // 0 = empty, 1 = tile, 2 = spike, 3 = potion, 4 = player event, 5 = path to stage
                 {
                     tilemap.SetTile(new Vector3Int(x, y, 0), tile);
                 }
@@ -247,10 +252,6 @@ public class LevelGenerator : MonoBehaviour
             }
         }
 
-        spikes = GameObject.FindGameObjectsWithTag("Spike");
-        potions = GameObject.FindGameObjectsWithTag("Potion");
-        playerEvents = GameObject.FindGameObjectsWithTag("Player Event");
-
         // Generate the player's initial position, which must be on a tile
         int generationLimit = 0;
         while (true)
@@ -262,8 +263,9 @@ public class LevelGenerator : MonoBehaviour
                 break;
             }
 
-            // In case there is no tile in the top row
             generationLimit++;
+
+            // In case there is no tile in the top row
             if (generationLimit > map.GetUpperBound(0))
             {
                 player.transform.position = tilemap.GetCellCenterWorld(new Vector3Int(0, map.GetUpperBound(1), 0));
@@ -273,9 +275,25 @@ public class LevelGenerator : MonoBehaviour
 
         // Generate the boss fight stage width and offset by random
         // The minimum width is 10
-        int maxStageWidth = map.GetUpperBound(0) / 2 > 10 ? map.GetUpperBound(0) / 2 : 10;
-        int battleStageWidth = Random.Range(10, maxStageWidth);
-        int offset = Random.Range(0, map.GetUpperBound(0) - battleStageWidth);
+        int battleStageWidth = 0;
+        int offset = 0;
+
+        // generate the width and position of the boos battle stage until there is a channel of height 8 or UpperBound(1)
+        // max iteration = 100 (fail to find a channel)
+        int count = 0;
+        while (true)
+        {
+            int maxStageWidth = map.GetUpperBound(0) / 2 > 10 ? map.GetUpperBound(0) / 2 : 10;
+            battleStageWidth = Random.Range(10, maxStageWidth);
+            offset = Random.Range(0, map.GetUpperBound(0) - battleStageWidth);
+
+            count++;
+
+            if (existPath(map, battleStageWidth, offset) || count > 100)
+            {
+                break;
+            }
+        }
 
         // Set the boss fight stage
         for (int y = -6; y < 0; y++)
@@ -294,7 +312,39 @@ public class LevelGenerator : MonoBehaviour
         Vector3 tilePosition = tilemap.GetCellCenterWorld(new Vector3Int(bossTile, -1, 0));
         boss.transform.position = new Vector3(tilePosition.x, tilePosition.y - 0.4f, tilePosition.z);
     }
+
+    // check if there is a channel to the boss battle stage
+    private bool existPath(int[,] map, int battleStageWidth, int offset)
+    {
+        int checkHeight = map.GetUpperBound(1) > 8 ? 8 : map.GetUpperBound(1);
+        bool isPath = false;
+
+        for (int x = offset + 1; x < battleStageWidth + offset - 1; x++)
+        {
+            for (int y = 0; y <= checkHeight; y++)
+            {
+                if (map[x, y] == 1)
+                {
+                    break;
+                }
+
+                if (y == checkHeight)
+                {
+                    isPath = true;
+                    break;
+                }
+            }
+
+            if (isPath == true)
+            {
+                break;
+            }
+        }
+
+        return isPath;
+    }
 }
+
 
 [CustomEditor(typeof(LevelGenerator))]
 public class LevelGeneratorEditor : Editor
