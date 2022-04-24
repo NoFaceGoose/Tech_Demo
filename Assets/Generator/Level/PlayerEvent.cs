@@ -20,7 +20,7 @@ public class PlayerEvent : MonoBehaviour
                     player.GetComponent<PrefabWeapon>().coolDown = 0f;
                 }
 
-                player.GetComponent<CharacterController2D>().updateReminder("Fire Cool Down " + (value < 0 ? value.ToString() : ("+" + value)), value >= 0);
+                player.GetComponent<CharacterController2D>().updateReminder("Fire Cool Down " + (value < 0 ? value.ToString() : ("+" + value)), value <= 0);
             }
             else if (selector >= 20 && selector < 40)
             {
