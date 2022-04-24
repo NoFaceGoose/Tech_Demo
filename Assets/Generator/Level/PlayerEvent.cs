@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class PlayerEvent : MonoBehaviour
 {
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         GameObject player = collision.gameObject;

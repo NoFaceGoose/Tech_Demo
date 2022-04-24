@@ -59,9 +59,9 @@ public class Boss : MonoBehaviour
         Node bb1 = new BlackboardCondition("playerDistance", Operator.IS_SMALLER_OR_EQUAL, fireRange, Stops.IMMEDIATE_RESTART, new Action(() => Fire()));
         // Select between move and fire when the player is not in attack range, more likely to move
         Node rndSel = new RandomSelector(bb1, new Action(() => MoveToPlayer()), new Action(() => MoveToPlayer()));
-        // Attack the player if the player is in attack range
+        // Attack the player if the player is in attacking range
         Node bb2 = new BlackboardCondition("playerDistance", Operator.IS_SMALLER_OR_EQUAL, attackRange, Stops.IMMEDIATE_RESTART, new Action(() => Attack()));
-        // Look at the player at first, then wait for 0.5 second, let the last action execute for a while
+        // Look at the player at first, then wait for 0.5 second, let the last state continue for a while
         return new Sequence(new Action(() => LookAtPlayer()), new Wait(0.5f), new Selector(bb2, rndSel));
     }
 
