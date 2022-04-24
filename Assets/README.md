@@ -1,4 +1,4 @@
-# Third Party Libraries and assets
+# Third Party Libraries and Assets
 
 1. **NPBehave**  (Assets/ThirdParty/NPBehave): Event driven Behavior Tree Library.
 
